@@ -1,20 +1,27 @@
-jest.mock('../src/models/Car.model.js');
+jest.mock('../../src/models/Car.model.js');
 
 const request = require('supertest');
-const app = require('../src/app');
-const CarModel = require('../src/models/Car.model');
+const app = require('../../src/app');
+const CarModel = require('../../src/models/Car.model');
 
-CarModel.getAllCars.mockReturnValue([{ id: 'sdferwr', make: 'Chevrolet', model: 'Silverado' }]);
-CarModel.createNewCar.mockReturnValue({ id: 'sdferwr', make: 'Chevrolet', model: 'Silverado' });
+const mockData = [
+  { id: 'sdferwr', make: 'Chevrolet', model: 'Silverado' }
+];
+
+CarModel.getAllCars.mockReturnValue(mockData);
+CarModel.createNewCar.mockReturnValue(mockData[0]);
+
+const carSchema = {
+  id: expect.any(String),
+  make: expect.any(String),
+  model: expect.any(String)
+};
+
 
 describe('GET /api/cars ', () => {  
-  it('should return a list of car objects (with make and model)', async () => {
+  it('should return a list of car objects on response body (with make and model)', async () => {
     const res = await request(app).get('/api/cars');
-    expect(res.body).toContainEqual({
-      id: expect.any(String),
-      make: expect.any(String),
-      model: expect.any(String)
-    });
+    expect(res.body).toContainEqual(carSchema);
   });
 
   it('should return a 200 status code on response', async () => {
@@ -37,7 +44,7 @@ describe('GET /api/cars ', () => {
 
 
 describe('POST /api/cars ', () => {
-  it('should return the created car object on success response', async () => {
+  it('should return a car object on response body', async () => {
     const newCar = {
       make: 'Chevrolet',
       model: 'Onix'
@@ -47,14 +54,8 @@ describe('POST /api/cars ', () => {
       .post('/api/cars')
       .send(newCar);
 
-    expect(res.body).toMatchObject({
-      id: expect.any(String),
-      make: expect.any(String),
-      model: expect.any(String)
-    });
+    expect(res.body).toMatchObject(carSchema);
   });
-
-
   it('should return a 201 status code on success response', async () => {
     const newCar = {
       make: 'Chevrolet',
@@ -87,19 +88,8 @@ describe('POST /api/cars ', () => {
 
 
 describe('DELETE /api/cars/:carID ', () => {
-  it('should have one car less', async () => {
-    const { body: oldCarsData } = await request(app).get('/api/cars');
-    const carID = oldCarsData[0].id;
-
-    await request(app).delete(`/api/cars/${carID}`);
-
-    const { body: newCarsData } = await request(app).get('/api/cars');
-
-    expect(newCarsData).toBeLessThan(oldCarsData.length);
-    expect(newCarsData).toHaveLength(oldCarsData.length - 1);
-  });
-
   it('should return a 200 status code on success response', async () => {
+    CarModel.getAllCars.mockReturnValue(mockData);
     const { body: carsData } = await request(app).get('/api/cars');
     const carID = carsData[0].id;
 
@@ -108,10 +98,14 @@ describe('DELETE /api/cars/:carID ', () => {
     expect(res.status).toBe(200);
   });
 
-  it('should return a 404 status code on response if the carID is not found', async () => {
-    const invalidID = 'ahjhjsda';
+  it('should return a 404 status code if CarModel.removeCar() throws an error', async () => {
+    CarModel.removeCar.mockImplementation(() => {
+      throw new Error();
+    });
+
+    const invalidID = 'some_invalid_id';
     const res = await request(app).delete(`/api/cars/${invalidID}`);
 
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(400);
   });
 });
