@@ -29,4 +29,18 @@ carsRouter.post('/', (req, res) => {
   res.json(newCarData);
 });
 
+// DELETE 'api/cars/:carID' --> Remove a car
+carsRouter.delete('/:carID', (req, res) => {
+  const { carID } = req.params;
+
+  try {
+    CarModel.removeCar(carID);
+    res.status(200);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(400);
+    res.json({ success: false });
+  }
+})
+
 module.exports = carsRouter;
