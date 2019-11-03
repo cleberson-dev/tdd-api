@@ -15,4 +15,18 @@ carsRouter.get('/', (req, res) => {
   res.json(cars);
 });
 
+// POST '/api/cars' --> Create a new car
+carsRouter.post('/', (req, res) => {
+  const { make, model } = req.body;
+  
+  if (!make || !model) {
+    res.status(400);
+    return res.json({ success: false , msg: 'Campos inválidos' });
+  }
+
+  const newCarData = CarModel.createNewCar(make, model);
+  res.status(201);
+  res.json(newCarData);
+});
+
 module.exports = carsRouter;

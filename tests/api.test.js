@@ -1,14 +1,15 @@
+jest.mock('../src/models/Car.model.js');
+
 const request = require('supertest');
 const app = require('../src/app');
 const CarModel = require('../src/models/Car.model');
 
-jest.mock('../src/models/Car.model.js');
 CarModel.getAllCars.mockReturnValue([{ id: 'sdferwr', make: 'Chevrolet', model: 'Silverado' }]);
+CarModel.createNewCar.mockReturnValue({ id: 'sdferwr', make: 'Chevrolet', model: 'Silverado' });
 
-describe('GET /api/cars ', () => {
+describe('GET /api/cars ', () => {  
   it('should return a list of car objects (with make and model)', async () => {
     const res = await request(app).get('/api/cars');
-
     expect(res.body).toContainEqual({
       id: expect.any(String),
       make: expect.any(String),
@@ -48,7 +49,8 @@ describe('POST /api/cars ', () => {
 
     expect(res.body).toMatchObject({
       id: expect.any(String),
-      ...newCar
+      make: expect.any(String),
+      model: expect.any(String)
     });
   });
 
