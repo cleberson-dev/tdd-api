@@ -1,8 +1,12 @@
 const request = require('supertest');
 const app = require('../src/app');
+const CarModel = require('../src/models/Car.model');
+
+jest.mock('../src/models/Car.model.js');
+CarModel.getAllCars.mockReturnValue([{ id: 'sdferwr', make: 'Chevrolet', model: 'Silverado' }]);
 
 describe('GET /api/cars ', () => {
-  it('should return a list of car objects (with make and model', async () => {
+  it('should return a list of car objects (with make and model)', async () => {
     const res = await request(app).get('/api/cars');
 
     expect(res.body).toContainEqual({
@@ -18,11 +22,11 @@ describe('GET /api/cars ', () => {
     expect(res.status).toBe(200);
   });
 
-  it('should return a 204 status code and an empty array on response if there are no cars', async () => {
-    // [...] Mocking the car's data provider
+  it('should return a 204 status code on response if there are no cars', async () => {
+    CarModel.getAllCars.mockReturnValue([]);
+    
     const res = await request(app).get('/api/cars');
     
-    expect(res.body).toHaveLength(0);
     expect(res.status).toBe(204);
   });
 });
