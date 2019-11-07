@@ -1,10 +1,15 @@
 {
-  "name": "pretest-app",
+  "name": "tdd-api",
   "version": "1.0.0",
-  "description": "Um WebApp, com TDD aplicado.",
+  "description": "Uma API em Express, com TDD aplicado.",
   "main": "index.js",
   "author": "Cleberson F. R. Junior",
   "license": "MIT",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:dev": "nodemon src/server.js",
+    "test": "jest"
+  },
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
@@ -12,6 +17,7 @@
   },
   "devDependencies": {
     "jest": "^24.9.0",
+    "nodemon": "^1.19.4",
     "supertest": "^4.0.2"
   }
 }
